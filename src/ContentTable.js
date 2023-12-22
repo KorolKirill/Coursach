@@ -30,19 +30,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
 }));
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-    createData('1Mile', 159, 6.0, 24, 4.0),
-    createData('4ange', 237, 9.0, 37, 4.3),
-    createData('60cek', 262, 16.0, 24, 6.0),
-    createData('ABCObmen', 305, 3.7, 67, 4.3),
-    createData('BTCBOSS', 356, 16.0, 49, 3.9),
-];
-
-export default function ContentTable() {
+export default function ContentTable({servicesToShow, handleOpen}) {
     return (
         <TableContainer component={Paper}>
             <Table  aria-label="customized table">
@@ -51,22 +40,24 @@ export default function ContentTable() {
                         <StyledTableCell >Exchanger</StyledTableCell>
                         <StyledTableCell align="right">Give</StyledTableCell>
                         <StyledTableCell align="right">Get</StyledTableCell>
-                        <StyledTableCell align="right">Reserve</StyledTableCell>
+                        <StyledTableCell align="right">Min amount</StyledTableCell>
+                        <StyledTableCell align="right">Max amount</StyledTableCell>
                         <StyledTableCell align="right">Review</StyledTableCell>
                         <StyledTableCell align="right"></StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
-                        <StyledTableRow key={row.name}>
+                    {servicesToShow.map((row) => (
+                        <StyledTableRow key={row.service}>
                             <StyledTableCell component="th" scope="row">
-                                {row.name}
+                                {row.service}
                             </StyledTableCell>
-                            <StyledTableCell align="right">{row.calories}</StyledTableCell>
-                            <StyledTableCell align="right">{row.fat}</StyledTableCell>
-                            <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-                            <StyledTableCell align="right">{row.protein}</StyledTableCell>
-                            <StyledTableCell align="right"><Button variant="contained" endIcon={<StarRate />}>
+                            <StyledTableCell align="right">{row.out + " " + row.to}</StyledTableCell>
+                            <StyledTableCell align="right">{row.in + " " + row.from}</StyledTableCell>
+                            <StyledTableCell align="right">{row.minamount}</StyledTableCell>
+                            <StyledTableCell align="right">{row.maxamount}</StyledTableCell>
+                            <StyledTableCell align="right">0</StyledTableCell>
+                            <StyledTableCell align="right"><Button onClick={() => {handleOpen(row)}} variant="contained" endIcon={<StarRate />}>
                                 Rate
                             </Button></StyledTableCell>
                         </StyledTableRow>

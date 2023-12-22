@@ -3,7 +3,7 @@ html {
 }
 
 .wrapper {
-  width: 1000px;
+  width: 1200px;
   margin: 0 auto;
 }
 
@@ -19,7 +19,7 @@ html {
 .content {
   padding: 0px 15px 0 15px;
   float: right;
-  width: 665px;
+  width: 850px;
 }
 
 .sidebar {
@@ -44,6 +44,12 @@ html {
 .search-header {
   padding: 5px;
   background-color: #55608f;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.selected-curr {
+  background: rgba(0,0,0,0.2);
 }
 
 h1 {
@@ -66,4 +72,43 @@ p {
 body {
   color: white;
   background: linear-gradient(60deg, #49a09d, #5f2c82)
+}
+
+
+.LoginContainerForm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.LoginForm {
+  width: 420px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.LoginContent {
+  padding-left: 12%;
+  padding-right: 12%;
+}
+
+.LoginTitle {
+  text-align: center;
+  margin-bottom: 1em;
+  font-size: 24px;
+  color: rgb(34, 34, 34);
+  font-weight: 800;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(34, 34, 34);
+}
+
+.text-center {
+  color: rgb(34, 34, 34);
 }

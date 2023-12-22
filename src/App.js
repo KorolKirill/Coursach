@@ -1,40 +1,68 @@
+import "bootstrap/dist/css/bootstrap.min.css"
 import './App.css';
-import ContentTable from "./ContentTable";
-import SearchTable from "./SearchTable";
-import {Button} from "@mui/material";
+import {useEffect, useState} from "react";
+import Auth from "./Auth";
+import MainWindow from "./MainWindow";
+import {MonitorApi} from "./api/Monitor.api";
+const { XMLParser } = require('fast-xml-parser');
+
 
 function App() {
-  return (
-    <div className="App">
-      <Button variant="contained" style={{position: "absolute", top: '5%', right: '3%'}}>Sign in</Button>
-      <div className='wrapper'>
-          <div className='header'>
-              <h1 style={{fontSize: '200%',
-                  borderBottom:'aliceblue 5px solid'}}>Korol Exchange</h1>
-          </div>
-          <div className='content'>
-              <div id="small_text" className="intro"><h1>Buy and sell crypto and fiat with BestChange.com!</h1>
-                  <p>BestChange is a directory of vetted exchangers with the help of which you can safely buy crypto,
-                      fiat and e-currency. The service monitors exchange rates in the listed exchangers, and you can
-                      easily choose the best exchanger to transfer your money. Watch the explanation <span
-                          className="videolink" onClick="show_video('en')"><span className="videoicon"></span><span
-                          className="link dashlink">video</span></span> to see how the service works.</p>
 
-                      <h2>Best exchange rates</h2>
-                      <p>The table below shows the best exchange rates for the 20 most popular directions, with the best
-                          rates on top. Other relevant information is available in icons next to the exchanger name and
-                          columns to its right.</p>
+    const [give, setGive] = useState('')
+    const [get, setGet] = useState('')
 
-          </div>
-              <ContentTable/>
-          </div>
+    const [userData, setUserData] = useState({})
 
-          <div className='sidebar'>
-                <SearchTable/>
-          </div>
-      </div>
-    </div>
-  );
+    const [showAuth, setShowAuth] = useState(false)
+    const [services, setServices] = useState([
+        {'name': 'Kingex', 'link': 'https://kingex.io/rates.xml'},
+        {'name': 'E-change', 'link': 'https://e-change.io/courses.xml'},
+    ])
+    const [rates, setRates] = useState([])
+    const [search, setSearch] = useState([])
+
+    const [servicesToShow, setServicesToShow] = useState([])
+
+    useEffect(() => {
+        const promises = services.map(service => {
+            return MonitorApi.getRates(service.link).then(r => {
+                const parserOptions = {
+                    ignoreAttributes: true
+                };
+                const parser = new XMLParser(parserOptions);
+                const jsonObj = parser.parse(r);
+                return jsonObj.rates.item.map(item => ({
+                    ...item,
+                    service: service.name
+                }));
+            });
+        });
+
+        Promise.all(promises).then(results => {
+            const newRates = results.flat();
+            setRates(newRates);
+
+            const fromToValues = newRates.flatMap(item => [item.from, item.to]);
+            const uniqueValues = Array.from(new Set(fromToValues));
+            setSearch(uniqueValues);
+        });
+        console.log(rates)
+    }, []);
+
+
+    useEffect(() => {
+        if (get && give) {
+            setServicesToShow(rates.filter((item) => item.from === get && item.to === give))
+        }
+    }, [get, give])
+
+    return (
+      showAuth ? <Auth setShowAuth={setShowAuth} setUserData={setUserData}/> : <MainWindow userData={userData}
+          rates={rates} setShowAuth={setShowAuth} servicesToShow={servicesToShow}
+          give={give} setGive={setGive} get={get} setGet={setGet} search={search}
+      />
+    );
 }
 
 export default App;

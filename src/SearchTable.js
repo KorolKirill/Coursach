@@ -5,49 +5,36 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 
 
-function SearchTable() {
-
+function SearchTable({search, give, setGive, get, setGet}) {
 
     return (
         <div className='rate'>
             <div style={{width: '50%'}}>
                 <div className='search-header'>Give</div>
-                <List>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton >
-                            <ListItemText className='list-item' primary={`UAH`} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton>
-                            <ListItemText className='list-item'  primary={`EUR`} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton>
-                            <ListItemText className='list-item'  primary={`USD`} />
-                        </ListItemButton>
-                    </ListItem>
+                <List sx={{ overflowY: 'scroll', height: '600px'}}>
+                    {search.map(curr => {
+                        return (
+                            <ListItem onClick={() => {setGive(curr)}} component="div" disablePadding className={give === curr ? 'selected-curr' : ''}>
+                                <ListItemButton >
+                                    <ListItemText  className='list-item' primary={curr}  />
+                                </ListItemButton>
+                            </ListItem>
+                        )
+                    })}
                 </List>
             </div>
             <div style={{width: '50%'}}>
                 <div className='search-header'>Get</div>
-                <List>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton >
-                            <ListItemText className='list-item' primary={`UAH`} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton>
-                            <ListItemText className='list-item'  primary={`EUR`} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem  component="div" disablePadding>
-                        <ListItemButton>
-                            <ListItemText className='list-item'  primary={`USD`} />
-                        </ListItemButton>
-                    </ListItem>
+                <List sx={{ overflowY: 'scroll', height: '600px'}}>
+                    {search.map(curr => {
+                        return (
+                            <ListItem onClick={() => {setGet(curr)}} component="div" disablePadding className={get === curr ? 'selected-curr' : ''}>
+                                <ListItemButton >
+                                    <ListItemText className='list-item' primary={curr}  />
+                                </ListItemButton>
+                            </ListItem>
+                        )
+                    })}
                 </List>
             </div>
         </div>
