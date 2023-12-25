@@ -7,9 +7,34 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import {useState} from "react";
 import SendIcon from '@mui/icons-material/Send';
-import {Rating} from "@mui/material";
+import Rating from "./Rating";
+import {CircularProgress, TextField} from "@mui/material";
+import {MonitorApi} from "./api/Monitor.api";
+import OpenAI from "openai";
+import ChatGptDialog from "./ChatGptDialog";
 
-function MainWindow({setShowAuth, servicesToShow, give, setGive, get, setGet, search, userData}) {
+function MainWindow({setShowAuth, servicesToShow, give, setGive, get, setGet, search, userData, ratings, fetchRates, rates}) {
+    const openai = new OpenAI({ apiKey: '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', dangerouslyAllowBrowser: true });
+
+    const [showDialog, setShowDialog] = useState(false)
+    const [gptText, setGptText] = useState('')
+    const sendChatGpt = async () => {
+        setShowLoader(true)
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: [{ role: "system", content: "You are a professional trader." },
+                    {"role": "user", "content": "Give advice on what you need to pay attention to before a transaction " + give + " - " + get }],
+                model: "gpt-3.5-turbo",
+            });
+            setShowLoader(false)
+            const result = completion.choices[0].message.content;
+            setGptText(result)
+            setShowDialog(true)
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+    };
+
     const style = {
         position: 'absolute',
         top: '50%',
@@ -23,13 +48,24 @@ function MainWindow({setShowAuth, servicesToShow, give, setGive, get, setGet, se
         color: 'black'
     };
 
-    const [open, setOpen] = useState(false);
+    const [showLoader, setShowLoader] = useState(false)
     const [exchangeToRate, setExchangeToRate] = useState({})
     const handleOpen = (service) => {
-        console.log(service)
+        console.log(ratings)
+        setRating(ratings.filter(r => r.exchange_id === service?.serviceId && r.user_id === userData?.id)[0] ?? 0)
+        setExchangeToRate(service)
         setOpen(true);
     }
+    const [open, setOpen] = useState(false);
     const handleClose = () => setOpen(false);
+
+
+    const [openNewExchange, setOpenNewExchange] = useState(false);
+    const [rating, setRating] = useState(0.1)
+
+    const [exchangeName, setExchangeName] = useState('')
+    const [exchangeLink, setExchangeLink] = useState('')
+    const [exchangeRateLink, setExchangeRateLink] = useState('')
 
     return (
         <div className="App">
@@ -53,12 +89,25 @@ function MainWindow({setShowAuth, servicesToShow, give, setGive, get, setGet, se
                             columns to its right.</p>
 
                     </div>
-                    <ContentTable servicesToShow={servicesToShow} handleOpen={handleOpen}/>
+
+                    {userData?.role === 'a' ? <Button onClick={() => setOpenNewExchange(true)} sx={{marginBottom: '10px'}} variant="contained">Add new Exchanger</Button> : <></>}
+
+                    {showLoader ?
+                        <CircularProgress color='inherit' sx={{float: 'right', marginBottom: '10px'}}/>
+                        : <>{(get && give) ? <Button onClick={() => sendChatGpt()} sx={{
+                            marginBottom: '10px',
+                            float: 'right'
+                        }} variant="contained">Analyze {give + " - " + get} course</Button> : <></>} </>
+                    }
+
+                    <ContentTable fetchRates={fetchRates} servicesToShow={servicesToShow} handleOpen={handleOpen} userData={userData}/>
+
                 </div>
 
                 <div className='sidebar'>
-                    <SearchTable give={give} setGive={setGive} get={get} setGet={setGet} search={search}/>
+                    <SearchTable rates={rates} give={give} setGive={setGive} get={get} setGet={setGet} search={search}/>
                 </div>
+
             </div>
             <Modal
                 open={open}
@@ -67,13 +116,40 @@ function MainWindow({setShowAuth, servicesToShow, give, setGive, get, setGet, se
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <Typography id="modal-modal-title" variant="h4" sx={{display: 'flex',
+                        justifyContent: 'center'}} component="h2">
                         Rate
                     </Typography>
-                    <Rating name="size-large" defaultValue={2} size="large" />
-                    <Button variant="contained" endIcon={<SendIcon />}>Send</Button>
+                    <Rating rating={rating} setRating={setRating}/>
+                    <Box sx={{display: 'flex', justifyContent: 'center'}}><Button onClick={() => {MonitorApi.setRating(userData.id, exchangeToRate.serviceId, rating).then(() => {
+                        fetchRates();
+                        handleClose()
+                    })}} variant="contained" endIcon={<SendIcon />}>Send</Button></Box>
                 </Box>
             </Modal>
+
+            <Modal
+                open={openNewExchange}
+                onClose={() => setOpenNewExchange(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                        <Typography id="modal-modal-title" variant="h4" component="h2">
+                            New exchange
+                        </Typography>
+
+                        <TextField value={exchangeName} onChange={(event) => setExchangeName(event.target.value)} label={'Name'} id="margin-normal" margin="normal" />
+                        <TextField value={exchangeLink} onChange={(event) => setExchangeLink(event.target.value)} label={'Link to exchange'} id="margin-normal" margin="normal" />
+                        <TextField value={exchangeRateLink} onChange={(event) => setExchangeRateLink(event.target.value)} label={'Link to rates xml'} id="margin-normal" margin="normal" />
+
+                        <Button sx={{marginTop: '15px'}} onClick={() => {MonitorApi.setExchange(exchangeName, exchangeLink, exchangeRateLink).then(() => {fetchRates()})}} variant="contained" endIcon={<SendIcon />}>Send</Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            <ChatGptDialog text={gptText} setOpen={setShowDialog} open={showDialog} />
         </div>
     );
 }

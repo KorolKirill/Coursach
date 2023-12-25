@@ -5,7 +5,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 
 
-function SearchTable({search, give, setGive, get, setGet}) {
+function SearchTable({search, give, setGive, get, setGet, rates}) {
 
     return (
         <div className='rate'>
@@ -13,8 +13,15 @@ function SearchTable({search, give, setGive, get, setGet}) {
                 <div className='search-header'>Give</div>
                 <List sx={{ overflowY: 'scroll', height: '600px'}}>
                     {search.map(curr => {
+                        let show = true;
+
+                        if (curr !== give && get) {
+                            show = rates.some(rate => rate.to === curr && rate.from === get);
+                        }
+
+
                         return (
-                            <ListItem onClick={() => {setGive(curr)}} component="div" disablePadding className={give === curr ? 'selected-curr' : ''}>
+                            <ListItem disabled={!show} sx={!show ? {pointerEvents: 'none'} : {}} onClick={() => {setGive(curr)}} component="div" disablePadding className={give === curr ? 'selected-curr' : ''}>
                                 <ListItemButton >
                                     <ListItemText  className='list-item' primary={curr}  />
                                 </ListItemButton>
@@ -27,8 +34,13 @@ function SearchTable({search, give, setGive, get, setGet}) {
                 <div className='search-header'>Get</div>
                 <List sx={{ overflowY: 'scroll', height: '600px'}}>
                     {search.map(curr => {
+                        let show = true;
+
+                        if (curr !== get && give) {
+                            show = rates.some(rate => rate.to === give && rate.from === curr);
+                        }
                         return (
-                            <ListItem onClick={() => {setGet(curr)}} component="div" disablePadding className={get === curr ? 'selected-curr' : ''}>
+                            <ListItem disabled={!show} sx={!show ? {pointerEvents: 'none'} : {}}  onClick={() => {setGet(curr)}} component="div" disablePadding className={get === curr ? 'selected-curr' : ''}>
                                 <ListItemButton >
                                     <ListItemText className='list-item' primary={curr}  />
                                 </ListItemButton>

@@ -16,9 +16,5 @@ export const LoginApi = {
         })
             .catch(error => error.response.data)
     },
-    getUsers: async () => {
-        return await axios.get('http://localhost:5000/getUsers')
-            .then(response => response.data)
-            .catch(error => error.response.data)
-    }
+
 }

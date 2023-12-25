@@ -26,7 +26,6 @@ const Auth = ({setShowAuth, setUserData}) => {
         }
 
         LoginApi.getUser(login).then((response) => {
-            console.log(response)
             if (response?.data?.password === pass) {
                 setUserData(response.data)
                 setShowAuth(false)
@@ -91,7 +90,7 @@ const Auth = ({setShowAuth, setUserData}) => {
         <div className="LoginContainerForm">
             <div className="LoginForm">
                 <div className="LoginContent">
-                    <h3 className="LoginTitle">Sign In</h3>
+                    <h3 className="LoginTitle">Sign Up</h3>
                     <div className="text-center">
                         Already registered?{" "}
                         <span className="link-primary" onClick={changeAuthMode}>
